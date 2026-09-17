@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Oráculo 2030 — Projeção de Valorização do Litoral</title>
+<meta name="description" content="Projeção de valorização dos bairros do litoral paulista até 2030, por cenário.">
+<style>body{font-family:system-ui;margin:0;background:#0f172a;color:#e2e8f0}header{background:linear-gradient(135deg,#312e81,#7c3aed);color:#fff;padding:2rem 1rem;text-align:center}header a{color:#ddd6fe}main{max-width:780px;margin:1.5rem auto;padding:0 1rem}.card{background:#1e293b;border-radius:12px;padding:1.2rem;margin:1rem 0}select{font-size:1rem;padding:.5rem;border-radius:8px;border:1px solid #7c3aed;background:#0f172a;color:#fff}canvas{width:100%;background:#1e293b;border-radius:12px}table{width:100%;border-collapse:collapse;font-size:.9rem}td,th{padding:.4rem;border-bottom:1px solid #334155;text-align:left}footer{text-align:center;font-size:.85rem;padding:2rem 1rem;color:#a78bfa}.net{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-top:.8rem}.net a{background:#312e81;color:#ddd6fe;padding:.3rem .6rem;border-radius:999px;text-decoration:none;font-size:.8rem}</style>
+</head>
+<body>
+<header><h1>🔮 Oráculo 2030</h1><p>Onde o m² do litoral vai estar em 2030 — três cenários, um futuro.</p><a href="https://praia.digital">← praia.digital</a> · <a href="https://praia.digital/apps">Hub de apps</a></header>
+<main>
+<div class="card"><label><b>Bairro:</b></label> <select id="b" onchange="render()"><option>Juquehy (S. Sebastião)</option><option>Riviera (Bertioga)</option><option>Enseada (Guarujá)</option><option>Gonzaga (Santos)</option><option>Itaguá (Ubatuba)</option><option>Boqueirão (Praia Grande)</option><option>Centro (Mongaguá)</option></select> <label style="margin-left:1rem"><b>Cenário:</b></label> <select id="c" onchange="render()"><option value="0">Base (inflação + mercado)</option><option value="1">Otimista (obras + turismo)</option><option value="2">Pessimista (clima + juros)</option></select><p id="narr"></p><canvas id="cv" width="740" height="250"></canvas></div>
+<div class="card"><table id="tb"></table></div>
+<div class="card"><h3>Decida com dados</h3><p>🗺️ <a href="https://praia.digital/mapa-investidor">Mapa do Investidor — score atual</a><br>📡 <a href="https://praia.digital/radar-precos">Radar de Preços — hoje</a><br>🌱 <a href="https://praia.digital/eco-praia">Eco Praia — o cenário pessimista</a></p></div>
+</main>
+<footer><b>Rede Praia Digital</b><div class="net"><a href="https://praia.digital/apps">Hub</a><a href="https://praia.digital/fracao-praia">Fração Praia</a><a href="https://praia.digital/mentor-imobiliario">Mentor</a><a href="https://praia.digital/ondata">Ondata</a><a href="https://praia.digital/alerta-ofertas">Alerta de Ofertas</a><a href="https://praia.digital/investidores">Investidores</a></div><p>© 2026 Praia Digital</p></footer>
+<script>
+const D={'Juquehy (S. Sebastião)':12500,'Riviera (Bertioga)':11000,'Enseada (Guarujá)':8200,'Gonzaga (Santos)':9500,'Itaguá (Ubatuba)':7400,'Boqueirão (Praia Grande)':6800,'Centro (Mongaguá)':4200};
+const taxas=[[0.055,0.07,0.06,0.05],[0.09,0.11,0.10,0.08],[0.01,0.005,-0.01,0.01]];
+function render(){
+ const b=document.getElementById('b').value,ci=+document.getElementById('c').value;
+ let v=D[b],pts=[v];const ts=taxas[ci];
+ for(let y=0;y<4;y++){v*=1+ts[y];pts.push(Math.round(v));}
+ const c=document.getElementById('cv').getContext('2d');c.clearRect(0,0,740,250);
+ const mn=Math.min(...pts)*0.9,mx=Math.max(...pts)*1.05;c.strokeStyle='#a78bfa';c.lineWidth=2.5;c.beginPath();
+ pts.forEach((p,i)=>{const x=40+i*165,y=230-(p-mn)/(mx-mn)*200;i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();
+ pts.forEach((p,i)=>{const x=40+i*165,y=230-(p-mn)/(mx-mn)*200;c.fillStyle='#a78bfa';c.beginPath();c.arc(x,y,5,0,7);c.fill();c.fillStyle='#e2e8f0';c.font='12px system-ui';c.fillText('R$ '+(p/1000).toFixed(1)+'k',x-18,y-12);c.fillText(2026+i,x-10,246);});
+ const g=Math.round((pts[4]/pts[0]-1)*100);
+ document.getElementById('narr').innerHTML='Projeção '+['base','otimista','pessimista'][ci]+' para <b>'+b+'</b>: m² de R$ '+pts[0].toLocaleString('pt-BR')+' → <b>R$ '+pts[4].toLocaleString('pt-BR')+'</b> em 2030 ('+(g>=0?'+':'')+g+'%).';
+ document.getElementById('tb').innerHTML='<tr><th>Ano</th><th>2026</th><th>2027</th><th>2028</th><th>2029</th><th>2030</th></tr><tr><td>R$/m²</td>'+pts.map(p=>'<td>'+p.toLocaleString('pt-BR')+'</td>').join('')+'</tr>';
+}
+render();
+</script>
+</body>
+</html>
